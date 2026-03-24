@@ -677,6 +677,62 @@
     opacity: 0.4;
   }
 
+  /* Empty state */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 24px 70px;
+    background: var(--white);
+    border: 2px dashed rgba(118,107,96,0.15);
+    position: relative;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 1.2s;
+  }
+
+  .empty-pin {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--lavender);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+    margin: 0 auto 28px;
+  }
+
+  .empty-title {
+    font-family: 'Ibarra Real Nova', serif;
+    font-size: 1.4rem;
+    color: var(--heading);
+    margin-bottom: 10px;
+  }
+
+  .empty-text {
+    font-size: 0.9rem;
+    color: #9a9a9a;
+    line-height: 1.6;
+    max-width: 340px;
+    margin: 0 auto 28px;
+  }
+
+  .empty-cta {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white);
+    background: var(--heading);
+    border: none;
+    padding: 14px 32px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .empty-cta:hover {
+    background: var(--rosey);
+    transform: rotate(-1deg) scale(1.02);
+  }
+
+  .empty-state.hidden { display: none; }
+
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(14px); }
     to { opacity: 1; transform: translateY(0); }
@@ -795,76 +851,11 @@
 
   <div class="board" id="board">
 
-    <div class="note">
-      <div class="pin"></div>
-      <h3 class="note-name">Alejandra Roca</h3>
-      <p class="note-prompt">Three words</p>
-      <p class="note-answer">curious, intentional, loud</p>
-      <a href="#" class="note-link">@alejandraroca</a>
-    </div>
-
-    <div class="note">
-      <div class="pin"></div>
-      <h3 class="note-name">Marcus Chen</h3>
-      <p class="note-prompt">Three words</p>
-      <p class="note-answer">weird, musical, restless</p>
-      <a href="#" class="note-link">marcuschen.com</a>
-    </div>
-
-    <div class="note">
-      <div class="pin"></div>
-      <h3 class="note-name">Sofia Herrera</h3>
-      <p class="note-prompt">Three words</p>
-      <p class="note-answer">adventurous, warm, grounded</p>
-      <a href="#" class="note-link">@sofiawanders</a>
-    </div>
-
-    <div class="note">
-      <div class="pin"></div>
-      <h3 class="note-name">Nate Okoye</h3>
-      <p class="note-prompt">Three words</p>
-      <p class="note-answer">honest, driven, silly</p>
-      <a href="#" class="note-link">linkedin/in/nateokoye</a>
-    </div>
-
-    <div class="note">
-      <div class="pin"></div>
-      <h3 class="note-name">Camille Baptiste</h3>
-      <p class="note-prompt">Three words</p>
-      <p class="note-answer">bold, strange, tender</p>
-      <a href="#" class="note-link">@camillebaptiste</a>
-    </div>
-
-    <div class="note">
-      <div class="pin"></div>
-      <h3 class="note-name">Jordan Reiss</h3>
-      <p class="note-prompt">Three words</p>
-      <p class="note-answer">creative, opinionated, loyal</p>
-      <a href="#" class="note-link">jordanreiss.co</a>
-    </div>
-
-    <div class="note">
-      <div class="pin"></div>
-      <h3 class="note-name">Rina Velez</h3>
-      <p class="note-prompt">Three words</p>
-      <p class="note-answer">thoughtful, nerdy, open</p>
-      <a href="#" class="note-link">@rinavelezwrites</a>
-    </div>
-
-    <div class="note">
-      <div class="pin"></div>
-      <h3 class="note-name">Theo Banks</h3>
-      <p class="note-prompt">Three words</p>
-      <p class="note-answer">scrappy, optimistic, caffeinated</p>
-      <a href="#" class="note-link">@theobanks_</a>
-    </div>
-
-    <div class="note">
-      <div class="pin"></div>
-      <h3 class="note-name">Layla Kim</h3>
-      <p class="note-prompt">Three words</p>
-      <p class="note-answer">gentle, fierce, present</p>
-      <a href="#" class="note-link">laylakim.com</a>
+    <div class="empty-state" id="emptyState">
+      <div class="empty-pin"></div>
+      <p class="empty-title">The board is empty... for now.</p>
+      <p class="empty-text">Be the first to pin yourself up here so the people you met (or missed) can find you.</p>
+      <button class="empty-cta" id="emptyOpenBtn">Be the first</button>
     </div>
 
   </div>
@@ -882,13 +873,15 @@
 <script>
   var overlay = document.getElementById('modalOverlay');
   var openBtn = document.getElementById('openBtn');
+  var emptyOpenBtn = document.getElementById('emptyOpenBtn');
   var closeBtn = document.getElementById('closeBtn');
   var submitBtn = document.getElementById('submitBtn');
   var modalForm = document.getElementById('modalForm');
   var modalSuccess = document.getElementById('modalSuccess');
   var board = document.getElementById('board');
+  var emptyState = document.getElementById('emptyState');
 
-  openBtn.addEventListener('click', function() {
+  function openModalFn() {
     overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
     modalForm.classList.remove('hidden');
@@ -896,7 +889,10 @@
     setTimeout(function() {
       document.getElementById('inputName').focus();
     }, 350);
-  });
+  }
+
+  openBtn.addEventListener('click', openModalFn);
+  emptyOpenBtn.addEventListener('click', openModalFn);
 
   closeBtn.addEventListener('click', function() {
     overlay.classList.remove('active');
@@ -970,6 +966,9 @@
       a.textContent = link;
       note.appendChild(a);
     }
+
+    // Hide empty state
+    if (emptyState) emptyState.classList.add('hidden');
 
     board.insertBefore(note, board.firstChild);
 
