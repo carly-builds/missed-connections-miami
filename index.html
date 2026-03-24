@@ -913,6 +913,29 @@
     }
   });
 
+  function resolveLink(raw) {
+    var s = raw.trim();
+
+    // Already a full URL
+    if (/^https?:\/\//i.test(s)) return s;
+
+    // linkedin.com or linkedin/in/... without protocol
+    if (/^linkedin/i.test(s) || /^(www\.)?linkedin\.com/i.test(s)) {
+      return 'https://' + s.replace(/^(www\.)?/, 'www.');
+    }
+
+    // Handle with @ — figure out which platform
+    if (s.startsWith('@')) s = s.substring(1);
+
+    // If it looks like a domain (has a dot and no spaces)
+    if (/^[^\s]+\.[^\s]+$/.test(s) && !s.includes('@')) {
+      return 'https://' + s;
+    }
+
+    // Default: treat as Instagram handle
+    return 'https://instagram.com/' + s;
+  }
+
   submitBtn.addEventListener('click', function() {
     var name = document.getElementById('inputName').value.trim();
     var link = document.getElementById('inputLink').value.trim();
@@ -962,7 +985,9 @@
     if (link) {
       var a = document.createElement('a');
       a.className = 'note-link';
-      a.href = '#';
+      a.href = resolveLink(link);
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
       a.textContent = link;
       note.appendChild(a);
     }
