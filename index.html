@@ -733,6 +733,19 @@
 
   .empty-state.hidden { display: none; }
 
+  /* Thought bubble for people who left a reflection */
+  .note-thought {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 16px;
+    opacity: 0.45;
+    cursor: default;
+    transition: opacity 0.3s ease;
+  }
+
+  .note:hover .note-thought { opacity: 0.8; }
+
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(14px); }
     to { opacity: 1; transform: translateY(0); }
@@ -954,6 +967,14 @@
       a.rel = 'noopener noreferrer';
       a.textContent = row.social_link;
       note.appendChild(a);
+    }
+
+    if (row.reflection) {
+      var thought = document.createElement('span');
+      thought.className = 'note-thought';
+      thought.textContent = '\uD83D\uDCAD';
+      thought.title = 'Left a reflection on the Wall of Love';
+      note.appendChild(thought);
     }
 
     return note;
