@@ -234,6 +234,52 @@
     opacity: 0.3;
   }
 
+  /* Empty state */
+  .empty-wall {
+    text-align: center;
+    padding: 60px 24px 70px;
+    max-width: 460px;
+    margin: 0 auto;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.9s;
+  }
+
+  .empty-wall-quote {
+    font-family: 'Ibarra Real Nova', serif;
+    font-size: 4rem;
+    line-height: 1;
+    color: var(--heading);
+    opacity: 0.1;
+    margin-bottom: -4px;
+  }
+
+  .empty-wall-title {
+    font-family: 'Ibarra Real Nova', serif;
+    font-size: 1.3rem;
+    color: var(--heading);
+    margin-bottom: 10px;
+  }
+
+  .empty-wall-text {
+    font-size: 0.9rem;
+    color: #9a9a9a;
+    line-height: 1.6;
+    max-width: 340px;
+    margin: 0 auto 24px;
+  }
+
+  .empty-wall-link {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--rosey);
+    transition: opacity 0.3s;
+  }
+
+  .empty-wall-link:hover { opacity: 0.7; }
+
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(14px); }
     to { opacity: 1; transform: translateY(0); }
@@ -262,52 +308,11 @@
 
   <div class="wall">
 
-    <div class="reflection">
-      <div class="reflection-quote">&ldquo;</div>
-      <p class="reflection-text">I walked in knowing absolutely no one. I left with three people I genuinely want to stay in touch with. That hasn't happened at an event in years.</p>
-      <p class="reflection-name">Sofia Herrera</p>
-    </div>
-
-    <div class="reflection">
-      <div class="reflection-quote">&ldquo;</div>
-      <p class="reflection-text">I almost didn't come. I was tired and it was a Monday and I had every excuse. I'm so glad I didn't listen to any of them.</p>
-      <p class="reflection-name anonymous">Anonymous</p>
-    </div>
-
-    <div class="reflection">
-      <div class="reflection-quote">&ldquo;</div>
-      <p class="reflection-text">The thing that hit me was how quickly people opened up. No one was performing. No one was pitching. It just felt like talking to humans again.</p>
-      <p class="reflection-name">Nate Okoye</p>
-    </div>
-
-    <div class="reflection">
-      <div class="reflection-quote">&ldquo;</div>
-      <p class="reflection-text">I've been to a hundred networking events. This was the first one where I forgot I was networking.</p>
-      <p class="reflection-name anonymous">Anonymous</p>
-    </div>
-
-    <div class="reflection">
-      <div class="reflection-quote">&ldquo;</div>
-      <p class="reflection-text">Someone told me about their career change and I told them about mine and for ten minutes it felt like we'd known each other for years. That's the thing about this format. It skips the small talk.</p>
-      <p class="reflection-name">Camille Baptiste</p>
-    </div>
-
-    <div class="reflection">
-      <div class="reflection-quote">&ldquo;</div>
-      <p class="reflection-text">Honestly? I cried in my car after. Not in a sad way. In a "I needed that more than I realized" way.</p>
-      <p class="reflection-name anonymous">Anonymous</p>
-    </div>
-
-    <div class="reflection">
-      <div class="reflection-quote">&ldquo;</div>
-      <p class="reflection-text">More of this. In every city. Please.</p>
-      <p class="reflection-name">Marcus Chen</p>
-    </div>
-
-    <div class="reflection">
-      <div class="reflection-quote">&ldquo;</div>
-      <p class="reflection-text">I moved to Miami six months ago and haven't really found my people yet. Last night was the first time I felt like maybe they're here and I just hadn't been looking in the right rooms.</p>
-      <p class="reflection-name">Rina Velez</p>
+    <div class="empty-wall">
+      <div class="empty-wall-quote">&ldquo;</div>
+      <p class="empty-wall-title">No reflections yet.</p>
+      <p class="empty-wall-text">When people pin themselves to the Missed Connections board and share a reflection, it'll show up here.</p>
+      <a href="index.html" class="empty-wall-link">Go to the board &rarr;</a>
     </div>
 
   </div>
