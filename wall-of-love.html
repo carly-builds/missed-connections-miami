@@ -306,9 +306,9 @@
 
   <div class="line-divider"></div>
 
-  <div class="wall">
+  <div class="wall" id="wall">
 
-    <div class="empty-wall">
+    <div class="empty-wall" id="emptyWall">
       <div class="empty-wall-quote">&ldquo;</div>
       <p class="empty-wall-title">No reflections yet.</p>
       <p class="empty-wall-text">When people pin themselves to the Missed Connections board and share a reflection, it'll show up here.</p>
@@ -326,5 +326,60 @@
     <p>A Reach Out Party &times; Sublime experience</p>
   </footer>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  var SUPABASE_URL = 'https://yjldmrlxrzqvklpfsvfd.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_7a3vb5fcTZT2gDvpKQPQhA_e1XPjsXJ';
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  var wall = document.getElementById('wall');
+  var emptyWall = document.getElementById('emptyWall');
+
+  async function loadReflections() {
+    var { data, error } = await sb
+      .from('missed_connections')
+      .select('name, reflection, show_name_on_reflection, created_at')
+      .not('reflection', 'is', null)
+      .neq('reflection', '')
+      .order('created_at', { ascending: false });
+
+    if (error) { console.error('Load error:', error); return; }
+
+    if (data && data.length > 0) {
+      emptyWall.style.display = 'none';
+      data.forEach(function(row) {
+        var div = document.createElement('div');
+        div.className = 'reflection';
+        div.style.opacity = '1';
+        div.style.animation = 'none';
+
+        var quote = document.createElement('div');
+        quote.className = 'reflection-quote';
+        quote.innerHTML = '&ldquo;';
+        div.appendChild(quote);
+
+        var text = document.createElement('p');
+        text.className = 'reflection-text';
+        text.textContent = row.reflection;
+        div.appendChild(text);
+
+        var nameEl = document.createElement('p');
+        if (row.show_name_on_reflection && row.name) {
+          nameEl.className = 'reflection-name';
+          nameEl.textContent = row.name;
+        } else {
+          nameEl.className = 'reflection-name anonymous';
+          nameEl.textContent = 'Anonymous';
+        }
+        div.appendChild(nameEl);
+
+        wall.appendChild(div);
+      });
+    }
+  }
+
+  loadReflections();
+</script>
 </body>
 </html>

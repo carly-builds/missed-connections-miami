@@ -870,7 +870,12 @@
   </footer>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+  var SUPABASE_URL = 'https://yjldmrlxrzqvklpfsvfd.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_7a3vb5fcTZT2gDvpKQPQhA_e1XPjsXJ';
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
   var overlay = document.getElementById('modalOverlay');
   var openBtn = document.getElementById('openBtn');
   var emptyOpenBtn = document.getElementById('emptyOpenBtn');
@@ -881,6 +886,80 @@
   var board = document.getElementById('board');
   var emptyState = document.getElementById('emptyState');
 
+  // --- Load existing pins from Supabase ---
+  async function loadPins() {
+    var { data, error } = await sb
+      .from('missed_connections')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) { console.error('Load error:', error); return; }
+
+    if (data && data.length > 0) {
+      if (emptyState) emptyState.classList.add('hidden');
+      data.forEach(function(row) {
+        board.appendChild(buildNoteEl(row, false));
+      });
+    }
+  }
+
+  loadPins();
+
+  // --- Build a note card from data ---
+  var rotations = [-0.8, 0.5, -0.3, 0.9, -0.6, 0.4, -1, 0.7, -0.4];
+  var noteCount = 0;
+
+  function buildNoteEl(row, isNew) {
+    var note = document.createElement('div');
+    note.className = isNew ? 'note preview-note' : 'note';
+    var rot = rotations[noteCount % rotations.length];
+    note.style.transform = 'rotate(' + rot + 'deg)';
+    note.style.opacity = '1';
+    note.style.animation = 'none';
+    noteCount++;
+
+    var pinDiv = document.createElement('div');
+    pinDiv.className = 'pin';
+    note.appendChild(pinDiv);
+
+    if (isNew) {
+      var badge = document.createElement('div');
+      badge.className = 'new-badge';
+      badge.textContent = 'Just pinned';
+      note.appendChild(badge);
+    }
+
+    var h3 = document.createElement('h3');
+    h3.className = 'note-name';
+    h3.textContent = row.name;
+    note.appendChild(h3);
+
+    if (row.three_words) {
+      var prompt = document.createElement('p');
+      prompt.className = 'note-prompt';
+      prompt.textContent = 'Three words';
+      note.appendChild(prompt);
+
+      var answer = document.createElement('p');
+      answer.className = 'note-answer';
+      answer.textContent = row.three_words;
+      note.appendChild(answer);
+    }
+
+    if (row.social_link) {
+      var a = document.createElement('a');
+      a.className = 'note-link';
+      a.href = resolveLink(row.social_link);
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.textContent = row.social_link;
+      note.appendChild(a);
+    }
+
+    return note;
+  }
+
+  // --- Modal controls ---
   function openModalFn() {
     overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -913,33 +992,27 @@
     }
   });
 
+  // --- Resolve social links ---
   function resolveLink(raw) {
     var s = raw.trim();
-
-    // Already a full URL
     if (/^https?:\/\//i.test(s)) return s;
-
-    // linkedin.com or linkedin/in/... without protocol
     if (/^linkedin/i.test(s) || /^(www\.)?linkedin\.com/i.test(s)) {
       return 'https://' + s.replace(/^(www\.)?/, 'www.');
     }
-
-    // Handle with @ — figure out which platform
     if (s.startsWith('@')) s = s.substring(1);
-
-    // If it looks like a domain (has a dot and no spaces)
     if (/^[^\s]+\.[^\s]+$/.test(s) && !s.includes('@')) {
       return 'https://' + s;
     }
-
-    // Default: treat as Instagram handle
     return 'https://instagram.com/' + s;
   }
 
-  submitBtn.addEventListener('click', function() {
+  // --- Submit handler ---
+  submitBtn.addEventListener('click', async function() {
     var name = document.getElementById('inputName').value.trim();
     var link = document.getElementById('inputLink').value.trim();
     var talking = document.getElementById('inputTalking').value.trim();
+    var reflection = document.getElementById('inputReflection').value.trim();
+    var showName = document.getElementById('toggleName').checked;
 
     if (!name) {
       document.getElementById('inputName').style.borderColor = 'var(--rosey)';
@@ -947,54 +1020,32 @@
       return;
     }
 
+    // Save to Supabase
+    var { data, error } = await sb
+      .from('missed_connections')
+      .insert({
+        name: name,
+        social_link: link || null,
+        three_words: talking || null,
+        reflection: reflection || null,
+        show_name_on_reflection: showName
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Save error:', error);
+      alert('Something went wrong. Please try again.');
+      return;
+    }
+
     // Show success
     modalForm.classList.add('hidden');
     modalSuccess.classList.add('active');
 
-    // Build new note
-    var note = document.createElement('div');
-    note.className = 'note preview-note';
-    note.style.transform = 'rotate(-0.6deg)';
-
-    var pinDiv = document.createElement('div');
-    pinDiv.className = 'pin';
-    note.appendChild(pinDiv);
-
-    var badge = document.createElement('div');
-    badge.className = 'new-badge';
-    badge.textContent = 'Just pinned';
-    note.appendChild(badge);
-
-    var h3 = document.createElement('h3');
-    h3.className = 'note-name';
-    h3.textContent = name;
-    note.appendChild(h3);
-
-    if (talking) {
-      var prompt = document.createElement('p');
-      prompt.className = 'note-prompt';
-      prompt.textContent = 'Three words';
-      note.appendChild(prompt);
-
-      var answer = document.createElement('p');
-      answer.className = 'note-answer';
-      answer.textContent = talking;
-      note.appendChild(answer);
-    }
-
-    if (link) {
-      var a = document.createElement('a');
-      a.className = 'note-link';
-      a.href = resolveLink(link);
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      a.textContent = link;
-      note.appendChild(a);
-    }
-
-    // Hide empty state
+    // Add card to board
+    var note = buildNoteEl(data, true);
     if (emptyState) emptyState.classList.add('hidden');
-
     board.insertBefore(note, board.firstChild);
 
     // Close and scroll
