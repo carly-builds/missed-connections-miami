@@ -236,6 +236,31 @@
     opacity: 0.3;
   }
 
+  /* Photo cards mixed into the wall */
+  .wall-photo {
+    break-inside: avoid;
+    margin-bottom: 32px;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .wall-photo img {
+    width: 100%;
+    display: block;
+  }
+
+  .photo-credit {
+    text-align: center;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--heading);
+    opacity: 0.2;
+    padding: 20px 24px 0;
+  }
+
   /* Empty state */
   .empty-wall {
     text-align: center;
@@ -337,6 +362,57 @@
   var wall = document.getElementById('wall');
   var emptyWall = document.getElementById('emptyWall');
 
+  var photos = [
+    { src: 'photos/AntiNetworking_MartinaTuaty138.jpg', alt: 'Carly speaking to the room' },
+    { src: 'photos/AntiNetworking_MartinaTuaty53.jpg', alt: 'Deep conversation on the couch' },
+    { src: 'photos/AntiNetworking_MartinaTuaty78.jpg', alt: 'Smiling mid-conversation' },
+    { src: 'photos/AntiNetworking_MartinaTuaty97.jpg', alt: 'Two people hugging' },
+    { src: 'photos/AntiNetworking_MartinaTuaty109.jpg', alt: 'One-on-one at the bar' },
+    { src: 'photos/AntiNetworking_MartinaTuaty37.jpg', alt: 'The room full of people connecting' },
+    { src: 'photos/AntiNetworking_MartinaTuaty187.jpg', alt: 'Exchanging info on phones' },
+    { src: 'photos/AntiNetworking_MartinaTuaty178.jpg', alt: 'Anti-Networking Miami tote bag' }
+  ];
+
+  function createPhotoCard(photo) {
+    var div = document.createElement('div');
+    div.className = 'wall-photo';
+    var img = document.createElement('img');
+    img.src = photo.src;
+    img.alt = photo.alt;
+    img.loading = 'lazy';
+    div.appendChild(img);
+    return div;
+  }
+
+  function createReflectionCard(row) {
+    var div = document.createElement('div');
+    div.className = 'reflection';
+    div.style.opacity = '1';
+    div.style.animation = 'none';
+
+    var quote = document.createElement('div');
+    quote.className = 'reflection-quote';
+    quote.innerHTML = '&ldquo;';
+    div.appendChild(quote);
+
+    var text = document.createElement('p');
+    text.className = 'reflection-text';
+    text.textContent = row.reflection;
+    div.appendChild(text);
+
+    var nameEl = document.createElement('p');
+    if (row.show_name_on_reflection && row.name) {
+      nameEl.className = 'reflection-name';
+      nameEl.textContent = row.name;
+    } else {
+      nameEl.className = 'reflection-name anonymous';
+      nameEl.textContent = 'Anonymous';
+    }
+    div.appendChild(nameEl);
+
+    return div;
+  }
+
   async function loadReflections() {
     var { data, error } = await sb
       .from('missed_connections')
@@ -349,34 +425,29 @@
 
     if (data && data.length > 0) {
       emptyWall.style.display = 'none';
-      data.forEach(function(row) {
-        var div = document.createElement('div');
-        div.className = 'reflection';
-        div.style.opacity = '1';
-        div.style.animation = 'none';
 
-        var quote = document.createElement('div');
-        quote.className = 'reflection-quote';
-        quote.innerHTML = '&ldquo;';
-        div.appendChild(quote);
+      // Interleave: insert a photo after every 2nd reflection
+      var photoIndex = 0;
+      data.forEach(function(row, i) {
+        wall.appendChild(createReflectionCard(row));
 
-        var text = document.createElement('p');
-        text.className = 'reflection-text';
-        text.textContent = row.reflection;
-        div.appendChild(text);
-
-        var nameEl = document.createElement('p');
-        if (row.show_name_on_reflection && row.name) {
-          nameEl.className = 'reflection-name';
-          nameEl.textContent = row.name;
-        } else {
-          nameEl.className = 'reflection-name anonymous';
-          nameEl.textContent = 'Anonymous';
+        if ((i + 1) % 2 === 0 && photoIndex < photos.length) {
+          wall.appendChild(createPhotoCard(photos[photoIndex]));
+          photoIndex++;
         }
-        div.appendChild(nameEl);
-
-        wall.appendChild(div);
       });
+
+      // Append any remaining photos at the end
+      while (photoIndex < photos.length) {
+        wall.appendChild(createPhotoCard(photos[photoIndex]));
+        photoIndex++;
+      }
+
+      // Add photo credit at the bottom of the wall
+      var credit = document.createElement('p');
+      credit.className = 'photo-credit';
+      credit.textContent = 'Photos by Martina Tuaty';
+      wall.parentNode.insertBefore(credit, wall.nextSibling);
     }
   }
 
